@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-bitbucket
+  labels:
+    run: my-bitbucket
+spec:
+  type: NodePort
+  ports:
+  - port: 7990
+    targetPort: 7990
+    nodePort: 30190
+    protocol: TCP
+    name: http
+  selector:
+    run: my-bitbucket
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-bitbucket-ssh
+  labels:
+    run: my-bitbucket-ssh
+spec:
+  type: NodePort
+  ports:
+  - port: 7999
+    targetPort: 7990
+    nodePort: 30199
+    protocol: TCP
+    name: ssh
+  selector:
+    run: my-bitbucket
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: my-bitbucket
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: my-bitbucket
+    spec:
+      containers:
+      - name: my-bitbucket
+        image: cptactionhank/atlassian-bitbucket:latest
+        ports:
+        - containerPort: 7990
+        - containerPort: 7999
